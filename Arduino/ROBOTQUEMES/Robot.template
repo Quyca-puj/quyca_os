@@ -95,5 +95,3 @@ public:
   bool tuntun();
   bool cuadrado();
   bool popurri();
-};
-#endif
