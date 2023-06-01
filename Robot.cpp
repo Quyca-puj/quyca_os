@@ -1,4 +1,5 @@
 #include "Robot.h"
+#include "config.h"
 
 Robot::Robot()
 {
@@ -7,7 +8,6 @@ Robot::Robot()
   emoAuxTimeElapsed = 0;
   mvtTimeElapsed = 0;
   customTimeElapsed = 0;
-  speeds = 50;
   movementRobot = 0;
   mvtTimer = 0;
   emotionTimer = 0;
@@ -125,6 +125,7 @@ void Robot::processMsg(String msg, bool checkStatus, WiFiClient client)
   STprint(runningEmotions.pendingTasks);
   STprint("runningCustoms.pendingTasks");
   STprint(runningCustoms.pendingTasks);
+
   if (!checkStatus)
   { // If- revisa si hay comando nuevo por procesar (checkStatus = false)
     // Conversion del comando a una tarea
@@ -157,7 +158,7 @@ void Robot::processMsg(String msg, bool checkStatus, WiFiClient client)
       // taskQueue.pop(aux);
       unwrapTask(aux);
       STprint("Speed");
-      STprint(speeds);
+      STprint(config.get(ConfigOptions::SPEED));
       STprint("mvtTimer");
       STprint(mvtTimer);
       STprint("emotionTimer");
@@ -181,7 +182,7 @@ void Robot::unwrapTask(Task *task)
   {
     if (task->speed > 0)
     {
-      speeds = task->speed;
+      config.set(ConfigOptions::SPEED, task->speed);
     }
     if (task->time > 0)
     {
@@ -221,7 +222,7 @@ void Robot::unwrapTask(Task *task)
   {
     if (task->speed > 0)
     {
-      speeds = task->speed;
+      config.set(ConfigOptions::SPEED, task->speed);
     }
   }
   delete(task);
@@ -469,28 +470,28 @@ void Robot::robotBasicCommands(String msg, bool checkStatus, WiFiClient client)
 void Robot::robotForeverMove(int dir)
 {
   STprint("robotFor Command");
-  foreverForward(speeds * dir);
+  foreverForward(config.get(ConfigOptions::SPEED) * dir);
 }
 
 bool Robot::robotForward()
 {
   STprint("robotForward Command");
-  return followLine(speeds);
+  return followLine(config.get(ConfigOptions::SPEED));
 }
 bool Robot::robotTurn(int dir)
 {
   STprint("robotTurn Command");
-  return turn(dir, speeds);
+  return turn(dir, config.get(ConfigOptions::SPEED));
 }
 bool Robot::robotTimedMove(int dir)
 {
   STprint("robotTimedMove Command");
-  return timedMove(dir * speeds, mvtTimer * 1000, &mvtTimeElapsed);
+  return timedMove(dir * config.get(ConfigOptions::SPEED), mvtTimer * 1000, &mvtTimeElapsed);
 }
 bool Robot::robotTimedTurn(int dir)
 {
   STprint("robotTimedTurn Command");
-  return timedTurn(dir, speeds, mvtTimer * 1000, &mvtTimeElapsed);
+  return timedTurn(dir, config.get(ConfigOptions::SPEED), mvtTimer * 1000, &mvtTimeElapsed);
 }
 
 bool Robot::robotStopMovement()
@@ -525,8 +526,8 @@ void Robot::readCustomVariablesMotors(String msg, WiFiClient client)
     }
     if (digit = true)
     {
-      speeds = messageint.toInt();
-      client.println(speeds);
+      config.set(ConfigOptions::SPEED, messageint.toInt());
+      client.println(config.get(ConfigOptions::SPEED));
       messageint = "";
     }
   }
@@ -924,7 +925,7 @@ Task* Robot::msgToTask(String msg)
       strcpy(task->type, TYPE_MOVEMENT);
       if (arguments[0].equals(EMPTY_PARAM))
       {
-        task->speed = speeds;
+        task->speed = config.get(ConfigOptions::SPEED);
       }
       else
       {
@@ -957,7 +958,7 @@ Task* Robot::msgToTask(String msg)
       {
         if (arguments[0].equals(EMPTY_PARAM))
         {
-          task->speed = speeds;
+          task->speed = config.get(ConfigOptions::SPEED);
         }
         else
         {
@@ -983,22 +984,39 @@ Task* Robot::msgToTask(String msg)
 
 bool Robot::isMvtAction(String command)
 {
-  return command.equals(MVT_FORWARD) || command.equals(MVT_LEFT) || command.equals(MVT_RIGHT) || command.equals(MVT_ROLL) || command.equals(MVT_REVERSEROLL) || isMvtTimedAction(command);
+  return command.equals(MVT_FORWARD)
+	  || command.equals(MVT_LEFT)
+	  || command.equals(MVT_RIGHT)
+	  || command.equals(MVT_ROLL)
+	  || command.equals(MVT_REVERSEROLL)
+	  || isMvtTimedAction(command)
+	  ;
 }
 
 bool Robot::isMvtTimedAction(String command)
 {
-  return command.equals(MVT_TIMEDFORWARD) || command.equals(MVT_TIMEDREVERSE) || command.equals(MVT_TIMEDLEFT) || command.equals(MVT_TIMEDRIGHT);
+  return command.equals(MVT_TIMEDFORWARD)
+	  || command.equals(MVT_TIMEDREVERSE)
+	  || command.equals(MVT_TIMEDLEFT)
+	  || command.equals(MVT_TIMEDRIGHT)
+	  ;
 }
 
 bool Robot::isEmoAction(String command)
 {
-  return command.equals(EMOTION_STR) || command.equals(EMOTION_SWITCH) || command.equals(EMOTION_OFF);
+  return command.equals(EMOTION_STR)
+	  || command.equals(EMOTION_SWITCH)
+	  || command.equals(EMOTION_OFF)
+	  ;
 }
 
 bool Robot::isBasicAction(String command)
 {
-  return command.equals(BASIC_STOP_ALL) || command.equals(BASIC_CALIB) || command.equals(BASIC_STOP_MVT) || command.equals(BASIC_CONNECT);
+  return command.equals(BASIC_STOP_ALL)
+	  || command.equals(BASIC_CALIB)
+	  || command.equals(BASIC_STOP_MVT)
+	  || command.equals(BASIC_CONNECT)
+	  ;
 }
 
 bool Robot::switchFaces(String emo1, String emo2, long time, long period)
@@ -1048,6 +1066,7 @@ bool Robot::switchFaces(String emo1, String emo2, long time, long period)
   }
   return toRet;
 }
+
 bool Robot::robotDelay(long time, long *timeElapsed)
 {
   return STDelay(time, timeElapsed);
@@ -1088,7 +1107,12 @@ void Robot::answerPendingByType(TaskList *list, WiFiClient client)
     answerCommand(list, String(aux->command), client);
   }
 }
+
 bool Robot::isInAction()
 {
-  return runningBasics.pendingTasks > 0 || runningMvt.pendingTasks > 0 || runningEmotions.pendingTasks > 0 || runningCustoms.pendingTasks > 0 || taskQueue.pendingTasks > 0;
+  return
+    runningBasics.pendingTasks > 0 ||
+    runningMvt.pendingTasks > 0 ||
+    runningEmotions.pendingTasks > 0 ||
+    runningCustoms.pendingTasks > 0 || taskQueue.pendingTasks > 0;
 }
