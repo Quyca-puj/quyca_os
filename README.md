@@ -1,5 +1,5 @@
 
-# ROBOTQUEMES
+# QUYCA_OS
 
 ## Instalar board para el nodemcu
 https://www.instructables.com/Quick-Start-to-Nodemcu-ESP8266-on-Arduino-IDE/
@@ -28,8 +28,8 @@ Para encontrar la tarjeta conectada
 
 Compilar 
 
-    arduino-cli compile --fqbn esp8266:esp8266:nodemcuv2 ROBOTQUEMES.ino
+    arduino-cli compile --fqbn esp8266:esp8266:nodemcuv2 quyca_os.ino
 
 Para cargar el programa al arduino será algo similar a lo siguiente. PORT se encuentra con `board list`.
 
-    arduino-cli upload -p <PORT> --fqbn esp8266:esp8266:nodemcuv2 ROBOTQUEMES.ino
+    arduino-cli upload -p <PORT> --fqbn esp8266:esp8266:nodemcuv2 quyca_os.ino
