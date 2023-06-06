@@ -1,5 +1,5 @@
 BOARD = esp8266:esp8266:nodemcuv2
-SKETCH = ROBOTQUEMES.ino
+SKETCH = quyca_os.ino
 PORT = /dev/ttyUSB0
 
 compile:
