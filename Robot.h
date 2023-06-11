@@ -13,6 +13,8 @@
 #include "task_list.h"
 #include "task_queue.h"
 
+#include "wifi_config.h"
+
 class Robot
 {
   RobotConfig rc;
