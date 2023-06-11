@@ -8,6 +8,8 @@
 #include "JointExtra.h"
 #include <ArduinoQueue.h>
 
+#include "wifi_config.h"
+
 class Robot
 {
 
@@ -89,7 +91,7 @@ public:
   bool leftActive;
   bool isInAction();
   Robot();
-  void setupRobot(int serial, String givenAlias, String ssid, String password);
+  void setupRobot(int serial, String givenAlias);
   void processMsg(String msg, bool checkStatus, WiFiClient client);
   bool adelante_atras();
   bool tuntun();

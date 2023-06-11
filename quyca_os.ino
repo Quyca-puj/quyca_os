@@ -36,7 +36,7 @@ bool rec_flag = false;
 
 void setup()
 {
-  robot.setupRobot(115200, "morado", "JuanLeon", "12345678");
+  robot.setupRobot(115200, "morado");
 }
 
 void loop()

@@ -39,9 +39,12 @@ void Robot::connectClient()
     }
   }
 }
-void Robot::setupRobot(int serial, String givenAlias, String ssid, String password)
+void Robot::setupRobot(int serial, String givenAlias)
 {
   // Inicio del Serial, conexion a wifi e inicializacion de motores.
+  String ssid = WIFI_SSID;
+  String password = WIFI_PASS;
+
   Serial.begin(serial);
   WifiConnection(ssid, password);
   ip = WiFi.localIP().toString();

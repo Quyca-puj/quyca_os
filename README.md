@@ -1,6 +1,14 @@
 
 # QUYCA_OS
 
+## WIFI arduino
+
+Antes de intentar compilar el proyecto, es necesario crear el archivo `wifi_config.h`.
+En este archivo se deberán contener los siguientes valores. Ambos deben ser strings.
+
+    #define WIFI_SSID "ssid_red"
+    #define WIFI_PASS "pass_red"
+
 ## Instalar board para el nodemcu
 https://www.instructables.com/Quick-Start-to-Nodemcu-ESP8266-on-Arduino-IDE/
 
