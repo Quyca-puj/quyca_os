@@ -4,10 +4,19 @@
 #include <Arduino.h>
 #include "RobotConstants.h"
 
+enum TaskType {
+	NONE,
+	MOVEMENT,
+	EMOTION,
+	CUSTOM,
+	BASIC,
+	CONFIG
+};
+
 struct Task
 {
     char command[BUFFER_SIZE];
-    char type[BUFFER_SIZE];
+    TaskType type;
     long speed;
     long time;
     long period;

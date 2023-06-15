@@ -66,7 +66,7 @@ bool Robot::isFeasible(Task *msg)
   bool toRet = false;
   STprint("in isFeasible");
   STprint(msg->type);
-  if (strcmp(msg->type, TYPE_MOVEMENT) == 0)
+  if (msg->type == TaskType::MOVEMENT)
   {
     toRet = isFeasibleMvt(msg);
     if (toRet)
@@ -74,7 +74,7 @@ bool Robot::isFeasible(Task *msg)
       runningMvt.addNewTask(msg);
     }
   }
-  else if (strcmp(msg->type, TYPE_EMOTION) == 0)
+  else if (msg->type == TaskType::EMOTION)
   {
     toRet = isFeasibleEmotion(msg);
     if (toRet)
@@ -82,7 +82,7 @@ bool Robot::isFeasible(Task *msg)
       runningEmotions.addNewTask(msg);
     }
   }
-  else if (strcmp(msg->type, TYPE_CUSTOM) == 0)
+  else if (msg->type == TaskType::CUSTOM)
   {
     toRet = isFeasibleCustom(msg);
     if (toRet)
@@ -90,7 +90,7 @@ bool Robot::isFeasible(Task *msg)
       runningCustoms.addNewTask(msg);
     }
   }
-  else if (strcmp(msg->type, TYPE_BASIC) == 0)
+  else if (msg->type == TaskType::BASIC)
   {
     toRet = true;
     runningBasics.addNewTask(msg);
@@ -177,7 +177,7 @@ void Robot::processMsg(String msg, bool checkStatus, WiFiClient client)
 void Robot::unwrapTask(Task *task)
 {
   command = String(task->command);
-  if (strcmp(task->type, TYPE_MOVEMENT) == 0)
+  if (task->type == TaskType::MOVEMENT)
   {
     if (task->speed > 0)
     {
@@ -188,7 +188,7 @@ void Robot::unwrapTask(Task *task)
       mvtTimer = task->time;
     }
   }
-  if (strcmp(task->type, TYPE_EMOTION) == 0)
+  if (task->type == TaskType::EMOTION)
   {
     if (strcmp(task->command, EMOTION_STR) == 0)
     {
@@ -217,7 +217,7 @@ void Robot::unwrapTask(Task *task)
       }
     }
   }
-  if (strcmp(task->type, TYPE_CUSTOM) == 0)
+  if (task->type == TaskType::CUSTOM)
   {
     if (task->speed > 0)
     {
@@ -921,7 +921,7 @@ Task* Robot::msgToTask(String msg)
   {
     if (isMvtAction(command))
     {
-      strcpy(task->type, TYPE_MOVEMENT);
+      task->type = TaskType::MOVEMENT;
       if (arguments[0].equals(EMPTY_PARAM))
       {
         task->speed = config.get(ConfigOptions::SPEED);
@@ -937,7 +937,7 @@ Task* Robot::msgToTask(String msg)
     }
     else if (isEmoAction(command))
     {
-      strcpy(task->type, TYPE_EMOTION);
+      task->type = TaskType::EMOTION;
       if (command.equals(EMOTION_SWITCH))
       {
         arguments[0].toCharArray(task->emo1, BUFFER_SIZE);
@@ -952,7 +952,7 @@ Task* Robot::msgToTask(String msg)
     }
     else if (isCustomAction(command))
     {
-      strcpy(task->type, TYPE_CUSTOM);
+      task->type = TaskType::CUSTOM;
       if (currentArgs > 1)
       {
         if (arguments[0].equals(EMPTY_PARAM))
@@ -967,7 +967,7 @@ Task* Robot::msgToTask(String msg)
     }
     else if (isBasicAction(command))
     {
-      strcpy(task->type, TYPE_BASIC);
+      task->type = TaskType::BASIC;
       if (command.equals(BASIC_CONNECT))
       {
         returnIP = arguments[0];
