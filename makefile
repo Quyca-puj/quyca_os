@@ -10,3 +10,8 @@ list:
 
 upload:
 	arduino-cli upload -p $(PORT) --fqbn $(BOARD) $(SKETCH)
+
+monitor:
+	arduino-cli monitor -p $(PORT) -c baudrate=115200
+
+all: compile upload monitor
