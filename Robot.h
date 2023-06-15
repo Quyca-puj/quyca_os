@@ -9,6 +9,9 @@
 #include "config.h"
 
 #include "wifi_config.h"
+#include "task.h"
+#include "task_list.h"
+#include "task_queue.h"
 
 class Robot
 {
