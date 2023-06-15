@@ -83,6 +83,7 @@ private:
   void readCustomVariablesSensors(String msg, WiFiClient client);
   void JointServoMsg(String msg, WiFiClient client);
   void processCommands(String msg, bool checkStatus, WiFiClient client);
+  bool isConfig(String command);
   bool isMvtAction(String command);
   bool isMvtTimedAction(String command);
   bool isEmoAction(String command);
@@ -106,7 +107,8 @@ public:
   bool isInAction();
   Robot();
   void setupRobot(int serial, String givenAlias);
-  void processMsg(String msg, bool checkStatus, WiFiClient client);
+  void processMsg(String msg, bool checkStatus);
+  void processTasks(bool checkStatus, WiFiClient client);
   bool adelante_atras();
   bool tuntun();
   bool cuadrado();

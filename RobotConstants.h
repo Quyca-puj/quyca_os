@@ -31,4 +31,7 @@
 #define EMPTY_STRING "\0"
 #define EMPTY_PARAM "*"
 
+#define CFG_OFFSET_IZQ "offset_izq"
+#define CFG_OFFSET_DER "offset_der"
+
 #define PARALLEL_CUSTOM_SIZE 10

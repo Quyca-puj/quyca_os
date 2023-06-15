@@ -23,6 +23,7 @@ struct Task
     char emo1[BUFFER_SIZE];
     char emo2[BUFFER_SIZE];
     int ack;
+
     Task(String command, int ack);
     Task();
 };

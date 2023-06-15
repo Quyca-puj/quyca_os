@@ -9,11 +9,8 @@ TaskQueue::TaskQueue(){
 }
 
 void TaskQueue::push(Task *task){
-  STprint("TaskQueue::push");
   runningTasks[pendingTasks] = task;
-  STprint("TaskQueue::push 2");
   pendingTasks++;
-  STprint("TaskQueue::push 3");
 }
 
 Task* TaskQueue::peekPrevious(){

@@ -38,6 +38,7 @@ void Robot::connectClient()
     }
   }
 }
+
 void Robot::setupRobot(int serial, String givenAlias)
 {
   // Inicio del Serial, conexion a wifi e inicializacion de motores.
@@ -61,40 +62,44 @@ void Robot::setupRobot(int serial, String givenAlias)
   JointSetup();
 }
 
+/**
+ * Determina si el Task es posible y lo agrega a la lista de tareas del tipo dado
+ */
 bool Robot::isFeasible(Task *msg)
 {
   bool toRet = false;
-  STprint("in isFeasible");
-  STprint(msg->type);
-  if (msg->type == TaskType::MOVEMENT)
+  switch(msg->type)
   {
+  case TaskType::MOVEMENT:
     toRet = isFeasibleMvt(msg);
     if (toRet)
     {
       runningMvt.addNewTask(msg);
     }
-  }
-  else if (msg->type == TaskType::EMOTION)
-  {
+	break;
+  case TaskType::EMOTION:
     toRet = isFeasibleEmotion(msg);
     if (toRet)
     {
       runningEmotions.addNewTask(msg);
     }
-  }
-  else if (msg->type == TaskType::CUSTOM)
-  {
+	break;
+  case TaskType::CUSTOM:
     toRet = isFeasibleCustom(msg);
     if (toRet)
     {
       runningCustoms.addNewTask(msg);
     }
-  }
-  else if (msg->type == TaskType::BASIC)
-  {
+	break;
+  case TaskType::BASIC:
     toRet = true;
     runningBasics.addNewTask(msg);
+	break;
+  case TaskType::CONFIG:
+    toRet = true;
+    break;
   }
+
   return toRet;
 }
 
@@ -102,6 +107,7 @@ bool Robot::isFeasibleMvt(Task *msg)
 {
   return isMvtExpropiative || (!isMvtExpropiative && motorInactive);
 }
+
 bool Robot::isFeasibleEmotion(Task *msg)
 {
   STprint("isFeasibleEmotion");
@@ -110,7 +116,10 @@ bool Robot::isFeasibleEmotion(Task *msg)
   return isEmoExpropiative || (!isEmoExpropiative && screenInactive);
 }
 
-void Robot::processMsg(String msg, bool checkStatus, WiFiClient client)
+/**
+ * Procesa un unico mensaje y lo agrega al queue
+ */
+void Robot::processMsg(String msg, bool checkStatus)
 {
   bool answer = false;
   Task *aux;
@@ -131,30 +140,29 @@ void Robot::processMsg(String msg, bool checkStatus, WiFiClient client)
     STprint("Incoming");
     STprint(msg);
 
-    STprint("Before msgToTask");
     Task *task = msgToTask(msg);
-    STprint("After msgToTask");
+    STprint("Added");
     STprint(task->command);
     taskQueue.push(task);
-    STprint("After push");
-  } // end if
-  // procesar comandos y revision de comandos en ejecucion
-  STprint("taskQueue.pendingTasks 1");
-  STprint(taskQueue.pendingTasks);
+  }
+}
+
+/**
+ * procesar comandos y revision de comandos en ejecucion
+ */
+void Robot::processTasks(bool checkStatus, WiFiClient client)
+{
   if (!taskQueue.isEmpty())
   {
+    Task *aux = taskQueue.peekPrevious();
     STprint("After Task Empty");
-    aux = taskQueue.peekPrevious();
-    // taskQueue.peekPrevious(aux);
     STprint("Task Peeked");
     STprint(aux->command);
     STprint(aux->type);
-    STprint("Checking isFeasible");
     if (isFeasible(aux))
     {
       STprint("Task Feasible");
       aux = taskQueue.pop();
-      // taskQueue.pop(aux);
       unwrapTask(aux);
       STprint("Speed");
       STprint(config.get(ConfigOptions::SPEED));
@@ -165,13 +173,15 @@ void Robot::processMsg(String msg, bool checkStatus, WiFiClient client)
       STprint("emotion");
       STprint(emotion);
       STprint("toReturn");
-      STprint(arguments[currentArgs - 1]);
+      // STprint(arguments[currentArgs - 1]);
       checkStatus = false;
     }
   }
-  processCommands(command, checkStatus, client);
-  command = ""; // vaciar comando
-  // determinar si hay acciones en ejecucion.
+
+  if (command != "") {
+    processCommands(command, checkStatus, client);
+    command = ""; // vaciar comando
+  }
 }
 
 void Robot::unwrapTask(Task *task)
@@ -226,6 +236,7 @@ void Robot::unwrapTask(Task *task)
   }
   delete(task);
 }
+
 void Robot::answerCommand(TaskList *list, String task, WiFiClient client)
 {
   STprint("list size");
@@ -477,16 +488,19 @@ bool Robot::robotForward()
   STprint("robotForward Command");
   return followLine(config.get(ConfigOptions::SPEED));
 }
+
 bool Robot::robotTurn(int dir)
 {
   STprint("robotTurn Command");
   return turn(dir, config.get(ConfigOptions::SPEED));
 }
+
 bool Robot::robotTimedMove(int dir)
 {
   STprint("robotTimedMove Command");
   return timedMove(dir * config.get(ConfigOptions::SPEED), mvtTimer * 1000, &mvtTimeElapsed);
 }
+
 bool Robot::robotTimedTurn(int dir)
 {
   STprint("robotTimedTurn Command");
@@ -509,6 +523,7 @@ bool Robot::robotStopMovement()
 bool Robot::getMotorsStatus() {
   return !(rightActive || leftActive || forwardActive || reverseActive);
 }
+
 void Robot::readCustomVariablesMotors(String msg, WiFiClient client)
 {
   String messageint = "";
@@ -593,7 +608,7 @@ void Robot::readCustomVariablesSensors(String msg, WiFiClient client)
   {
     STprint("calibration entered");
     calibration();
-    client.println(arguments[currentArgs - 1]);
+    // client.println(arguments[currentArgs - 1]);
   }
   if (msg.equals("sensorReadFrontL"))
   {
@@ -822,7 +837,6 @@ bool Robot::readFaces(String msg)
     int color[3] = {0, 0, 0};
     facesDraw(myarray, color, 0);
     STprint(EMOTION_OFF);
-
   }
 
   return true;
@@ -887,13 +901,16 @@ void Robot::processCommands(String command, bool checkStatus, WiFiClient client)
 Task* Robot::msgToTask(String msg)
 {
   int tabs{0};
-  currentArgs = 0;
+  int currentArgs = 0;
+  String args[MAX_ARGS] = {};
+  String cmd;
 
-  for (int i = 0; i < MAX_ARGS; i++)
-  { // inicialziacion del arreglo de parametros
-    arguments[i] = "";
-  }
   Task *task = new Task();
+
+  // for (int i = 0; i < MAX_ARGS; i++)
+  // { // inicialziacion del arreglo de parametros
+  //   args[i] = "";
+  // }
   for (char index : msg)
   { // recorrer la cadena
     if (isSpace(index))
@@ -907,10 +924,10 @@ Task* Robot::msgToTask(String msg)
         case 0: // caso 0 es el id, no se guarda
           break;
         case 1: // caso 1 es el comando
-          command.concat(index);
+          cmd.concat(index);
           break;
         default: // del 1 en adelante son parametros
-          arguments[tabs - 2].concat(index);
+          args[tabs - 2].concat(index);
           break;
       }
     }
@@ -919,66 +936,76 @@ Task* Robot::msgToTask(String msg)
 
   if (currentArgs > 0)
   {
-    if (isMvtAction(command))
+    if (isMvtAction(cmd))
     {
       task->type = TaskType::MOVEMENT;
-      if (arguments[0].equals(EMPTY_PARAM))
+      if (args[0].equals(EMPTY_PARAM))
       {
         task->speed = config.get(ConfigOptions::SPEED);
       }
       else
       {
-        task->speed = arguments[0].toInt();
+        task->speed = args[0].toInt();
       }
-      if (isMvtTimedAction(command))
+      if (isMvtTimedAction(cmd))
       {
-        task->time = arguments[1].toInt();
+        task->time = args[1].toInt();
       }
     }
-    else if (isEmoAction(command))
+    else if (isEmoAction(cmd))
     {
       task->type = TaskType::EMOTION;
-      if (command.equals(EMOTION_SWITCH))
+      if (cmd.equals(EMOTION_SWITCH))
       {
-        arguments[0].toCharArray(task->emo1, BUFFER_SIZE);
-        arguments[1].toCharArray(task->emo2, BUFFER_SIZE);
-        task->time = arguments[2].toInt();
-        task->period = arguments[3].toInt();
+        args[0].toCharArray(task->emo1, BUFFER_SIZE);
+        args[1].toCharArray(task->emo2, BUFFER_SIZE);
+        task->time = args[2].toInt();
+        task->period = args[3].toInt();
       }
-      else if (command.equals(EMOTION_STR))
+      else if (cmd.equals(EMOTION_STR))
       {
-        arguments[0].toCharArray(task->emo1, BUFFER_SIZE);
+        args[0].toCharArray(task->emo1, BUFFER_SIZE);
       }
     }
-    else if (isCustomAction(command))
+    else if (isCustomAction(cmd))
     {
       task->type = TaskType::CUSTOM;
       if (currentArgs > 1)
       {
-        if (arguments[0].equals(EMPTY_PARAM))
+        if (args[0].equals(EMPTY_PARAM))
         {
           task->speed = config.get(ConfigOptions::SPEED);
         }
         else
         {
-          task->speed = arguments[0].toInt();
+          task->speed = args[0].toInt();
         }
       }
     }
-    else if (isBasicAction(command))
+    else if (isBasicAction(cmd))
     {
       task->type = TaskType::BASIC;
-      if (command.equals(BASIC_CONNECT))
+      if (cmd.equals(BASIC_CONNECT))
       {
-        returnIP = arguments[0];
-        returnPort = arguments[1].toInt();
+        returnIP = args[0];
+        returnPort = args[1].toInt();
       }
     }
-    command.toCharArray(task->command, BUFFER_SIZE);
-    task->ack = arguments[currentArgs - 1].toInt();
+    else if (isConfig(cmd))
+    {
+      task->type = TaskType::CONFIG;
+    }
+    cmd.toCharArray(task->command, BUFFER_SIZE);
+    task->ack = args[currentArgs - 1].toInt();
   }
-  command = "";
   return task;
+}
+
+bool Robot::isConfig(String command)
+{
+	return command.equals(CFG_OFFSET_DER)
+		|| command.equals(CFG_OFFSET_IZQ)
+		;
 }
 
 bool Robot::isMvtAction(String command)

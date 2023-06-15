@@ -56,15 +56,15 @@ void loop()
 
       if (!messages.indexOf(robot.alias) || (messages.equals("") && robot.isInAction()))
       {
-        robot.processMsg(messages, !rec_flag, client);
+        robot.processMsg(messages, !rec_flag);
         messages = "";
         rec_flag = false;
       }
-     
+      robot.processTasks(!rec_flag, client);
     }
     Serial.println("Client Disconnected");
     client.stop();
   }else if (robot.isInAction()){
-    robot.processMsg(messages, true, client);
+    robot.processMsg(messages, true);
   }
 }
