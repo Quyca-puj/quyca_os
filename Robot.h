@@ -1,5 +1,6 @@
 #ifndef ROBOT_H_
 #define ROBOT_H_
+
 #include "nodeWiFi.h"
 #include "RobotConstants.h"
 #include "motorMovementController.h"
@@ -14,6 +15,8 @@
 #include "task_queue.h"
 
 #include "wifi_config.h"
+
+#include "action.h"
 
 class Robot
 {
@@ -83,12 +86,6 @@ private:
   void readCustomVariablesSensors(String msg, WiFiClient client);
   void JointServoMsg(String msg, WiFiClient client);
   void processCommands(String msg, bool checkStatus, WiFiClient client);
-  bool isConfig(String command);
-  bool isMvtAction(String command);
-  bool isMvtTimedAction(String command);
-  bool isEmoAction(String command);
-  bool isCustomAction(String command);
-  bool isBasicAction(String command);
   bool robotDelay(long time, long *timeElapsed);
   void answerAllPending(WiFiClient client);
 public:

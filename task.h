@@ -2,6 +2,9 @@
 #define TASK_H_
 
 #include <Arduino.h>
+
+#include "action.h"
+#include "config.h"
 #include "RobotConstants.h"
 
 enum TaskType {

@@ -1,3 +1,6 @@
+#ifndef CONSTANTS
+#define CONSTANTS
+
 #define CALIBRATION_SPEED 50
 #define QUEUE_SIZE 10
 #define MAX_ARGS 4
@@ -35,3 +38,5 @@
 #define CFG_OFFSET_DER "offset_der"
 
 #define PARALLEL_CUSTOM_SIZE 10
+
+#endif

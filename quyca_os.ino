@@ -1,11 +1,5 @@
 #include "Robot.h"
 
-bool Robot::isCustomAction(String command)
-{
-  // return command.equals() || command.equals()...;
-  return false;
-}
-
 bool Robot::isFeasibleCustom(Task *msg)
 {
   bool toRet = false;
