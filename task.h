@@ -18,13 +18,13 @@ enum TaskType {
 
 struct Task
 {
-    char command[BUFFER_SIZE];
+    ActionType command;
     TaskType type;
     long speed;
     long time;
     long period;
-    char emo1[BUFFER_SIZE];
-    char emo2[BUFFER_SIZE];
+    ActionType emo1;
+    ActionType emo2;
     int ack;
 
     Task(String command, int ack);

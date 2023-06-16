@@ -7,35 +7,32 @@ TaskList::TaskList()
 
 void TaskList::addNewTask(Task *task)
 {
-  runningTasks[pendingTasks] = new ActiveTask(String(task->command), task->ack);
+  runningTasks[pendingTasks] = new ActiveTask(task->command, task->ack);
   pendingTasks++;
 }
 
-int TaskList::searchAck(String command)
+int TaskList::searchAck(ActionType command)
 {
-  char aux[BUFFER_SIZE];
-  command.toCharArray(aux,BUFFER_SIZE);
   for (int i = 0; i < pendingTasks; i++)
   {
     STprint("searchACK");
     STprint(runningTasks[i]->command);
-    STprint(aux);
-    STprint(strcmp(runningTasks[i]->command, aux)==0);
-    if (strcmp(runningTasks[i]->command, aux)==0)
+    STprint(command);
+    STprint(runningTasks[i]->command == command);
+    if (runningTasks[i]->command == command)
     {
       return runningTasks[i]->ack;
     }
   }
   return -1;
 }
-void TaskList::removeTask(String task)
+
+void TaskList::removeTask(ActionType task)
 {
   int pos = 0;
-  char aux[BUFFER_SIZE];
-  task.toCharArray(aux,BUFFER_SIZE);
   for (int i = 0; i < pendingTasks; i++)
   {
-    if (strcmp(runningTasks[i]->command, aux)==0)
+    if (runningTasks[i]->command == task)
     {
       pos = i;
     }

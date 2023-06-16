@@ -2,17 +2,17 @@
 
 Task::Task()
 {
-  strcmp(this->command,EMPTY_STRING);
+  this->command = ActionType::UNKNOWN_ACTION;
   this->ack = -1;
-  strcmp(this->emo1,EMPTY_STRING);
-  strcmp(this->emo2,EMPTY_STRING);
+  this->emo1 = ActionType::UNKNOWN_ACTION;
+  this->emo2 = ActionType::UNKNOWN_ACTION;
   this->speed = -1;
   this->time = -1;
   this->period = -1;
 }
 
-Task::Task(String command, int ack)
+Task::Task(String str_command, int ack)
 {
-  command.toCharArray(this->command, BUFFER_SIZE);
+  this->command = Action::str_to_enum(str_command);
   this->ack = ack;
 }

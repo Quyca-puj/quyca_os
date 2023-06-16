@@ -3,13 +3,14 @@
 
 #include <Arduino.h>
 #include "RobotConstants.h"
+#include "action.h"
 
 class ActiveTask
 {
 public:
-    char command[BUFFER_SIZE];
+    ActionType command;
     int ack;
-    ActiveTask(String command, int ack);
+    ActiveTask(ActionType command, int ack);
     ActiveTask();
 };
 

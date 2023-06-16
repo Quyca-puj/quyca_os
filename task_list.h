@@ -14,8 +14,8 @@ public:
     ActiveTask* runningTasks[PARALLEL_CUSTOM_SIZE];
     TaskList();
     void addNewTask(Task* task);
-    int searchAck(String command);
-    void removeTask(String task);
+    int searchAck(ActionType command);
+    void removeTask(ActionType task);
 };
 
 #endif

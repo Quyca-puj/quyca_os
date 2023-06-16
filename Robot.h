@@ -24,17 +24,17 @@ class Robot
 
   int currentArgs;
   bool movementCurrentState;
-  String command;
+  ActionType command;
   long mvtTimer;
   long emotionTimer;
   long emotionPeriod;
   int movementRobot;
   String arguments[MAX_ARGS];
-  String emotion;
+  ActionType emotion;
   bool shouldAnswer;
   bool isTimedAction;
   int macroStep;
-  String emoSwitch;
+  ActionType emoSwitch;
   bool motorInactive;
   bool screenInactive;
   TaskList runningMvt;
@@ -51,7 +51,7 @@ class Robot
 private:
   // motors
   bool getMotorsStatus();
-  void checkMotorCommands(String msg, bool checkStatus, WiFiClient client);
+  void checkMotorCommands(ActionType msg, bool checkStatus, WiFiClient client);
 
   // movement
   bool robotForward();
@@ -62,9 +62,9 @@ private:
   void robotForeverMove(int dir);
 
   // faces
-  bool readFaces(String msg);
-  bool readFaces(String msg, WiFiClient);
-  bool switchFaces(String emo1, String emo2, long time, long period);
+  bool readFaces(ActionType msg);
+  bool readFaces(ActionType msg, WiFiClient);
+  bool switchFaces(ActionType emo1, ActionType emo2, long time, long period);
 
   // task
   bool isFeasible(Task *msg);
@@ -73,25 +73,25 @@ private:
   bool isFeasibleCustom(Task *msg);
   void unwrapTask(Task *task);
   Task *msgToTask(String msg);
-  void answerCommand(TaskList *list,String task, WiFiClient client);
+  void answerCommand(TaskList *list, ActionType task, WiFiClient client);
   void answerPendingByType(TaskList *list, WiFiClient client);
 
 
   void calibration();
   void connectClient();
-  void checkEmotionCommands(String msg, bool checkStatus, WiFiClient client);
-  void checkCustomCommands(String msg, bool checkStatus, WiFiClient client);
-  void robotBasicCommands(String msg, bool checkStatus, WiFiClient client);
+  void checkEmotionCommands(ActionType msg, bool checkStatus, WiFiClient client);
+  void checkCustomCommands(ActionType msg, bool checkStatus, WiFiClient client);
+  void robotBasicCommands(ActionType msg, bool checkStatus, WiFiClient client);
   void readCustomVariablesMotors(String msg, WiFiClient client);
   void readCustomVariablesSensors(String msg, WiFiClient client);
   void JointServoMsg(String msg, WiFiClient client);
-  void processCommands(String msg, bool checkStatus, WiFiClient client);
+  void processCommands(ActionType msg, bool checkStatus, WiFiClient client);
   bool robotDelay(long time, long *timeElapsed);
   void answerAllPending(WiFiClient client);
 public:
   String ip;
   String alias;
-  String activeEmo;
+  ActionType activeEmo;
   long mvtTimeElapsed;
   long emoTimeElapsed;
   long emoAuxTimeElapsed;

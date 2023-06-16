@@ -1,13 +1,14 @@
 #include "active_task.h"
+#include "action.h"
 
 ActiveTask::ActiveTask()
 {
-  strcmp(this->command,EMPTY_STRING);
+  this->command = ActionType::UNKNOWN_ACTION;
   this->ack = -1;
 }
 
-ActiveTask::ActiveTask(String command, int ack)
+ActiveTask::ActiveTask(ActionType command, int ack)
 {
-  command.toCharArray(this->command, BUFFER_SIZE);
+  this->command = command;
   this->ack = ack;
 }
