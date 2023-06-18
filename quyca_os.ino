@@ -15,7 +15,7 @@ bool Robot::isFeasibleCustom(Task *msg)
   return toRet;
 }
 
-void Robot::checkCustomCommands(String msg, bool checkStatus, WiFiClient client)
+void Robot::checkCustomCommands(WiFiClient client)
 {
   /*
     if(msg.equals("macro") || (checkStatus && activeMacro)){

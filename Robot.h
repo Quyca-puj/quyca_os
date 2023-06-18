@@ -29,7 +29,6 @@ class Robot
   long emotionTimer;
   long emotionPeriod;
   int movementRobot;
-  String arguments[MAX_ARGS];
   String emotion;
   bool shouldAnswer;
   bool isTimedAction;
@@ -44,14 +43,11 @@ class Robot
   bool isMvtExpropiative;
   bool isEmoExpropiative;
   WiFiClient returnSock;
-  int returnPort;
-  String returnIP;
   // cppQueue taskQueue = cppQueue(sizeof(Task), QUEUE_SIZE, FIFO, false);
   TaskQueue taskQueue;
 private:
   // motors
   bool getMotorsStatus();
-  void checkMotorCommands(String msg, bool checkStatus, WiFiClient client);
 
   // movement
   bool robotForward();
@@ -75,21 +71,24 @@ private:
   bool isFeasibleCustom(Task *msg);
   void unwrapTask(Task const& task);
   Task *msgToTask(String msg);
-  void answerCommand(TaskList *list,String task, WiFiClient client);
+  void answerCommand(Task const& task, WiFiClient client);
   void answerPendingByType(TaskList *list, WiFiClient client);
 
+  // process commands
+  void processCommands(WiFiClient client);
+  void checkEmotionCommands(WiFiClient client);
+  void checkCustomCommands(WiFiClient client);
+  void robotBasicCommands(WiFiClient client);
+  void checkMotorCommands(WiFiClient client);
 
   void calibration();
-  void connectClient();
-  void checkEmotionCommands(String msg, bool checkStatus, WiFiClient client);
-  void checkCustomCommands(String msg, bool checkStatus, WiFiClient client);
-  void robotBasicCommands(String msg, bool checkStatus, WiFiClient client);
+  void connectClient(String returnIP, int returnPort);
   void readCustomVariablesMotors(String msg, WiFiClient client);
   void readCustomVariablesSensors(String msg, WiFiClient client);
   void JointServoMsg(String msg, WiFiClient client);
-  void processCommands(String msg, bool checkStatus, WiFiClient client);
   bool robotDelay(long time, long *timeElapsed);
   void answerAllPending(WiFiClient client);
+  void answerPendingList(TaskList *list, WiFiClient client);
 public:
   String ip;
   String alias;

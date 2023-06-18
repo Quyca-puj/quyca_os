@@ -11,11 +11,13 @@ class TaskList
 {
 public:
     int pendingTasks;
-    ActiveTask* runningTasks[PARALLEL_CUSTOM_SIZE];
+    Task runningTasks[PARALLEL_CUSTOM_SIZE];
+
     TaskList();
     void addNewTask(Task const& task);
     int searchAck(String command);
     void removeTask(String task);
+    Task pop();
 };
 
 #endif

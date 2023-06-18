@@ -7,10 +7,10 @@
 class ActiveTask
 {
 public:
-    char command[BUFFER_SIZE];
-    int ack;
-    ActiveTask(String command, int ack);
-    ActiveTask();
+  char command[BUFFER_SIZE];
+  int ack;
+  ActiveTask(String command, int ack);
+  ActiveTask();
 };
 
 #endif
