@@ -68,10 +68,12 @@ private:
 
   // task
   bool isFeasible(Task *msg);
+  void classifyTask(Task const& task);
+  bool processImmediateTask(Task const& task);
   bool isFeasibleMvt(Task *msg);
   bool isFeasibleEmotion(Task *msg);
   bool isFeasibleCustom(Task *msg);
-  void unwrapTask(Task *task);
+  void unwrapTask(Task const& task);
   Task *msgToTask(String msg);
   void answerCommand(TaskList *list,String task, WiFiClient client);
   void answerPendingByType(TaskList *list, WiFiClient client);

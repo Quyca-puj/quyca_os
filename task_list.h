@@ -13,7 +13,7 @@ public:
     int pendingTasks;
     ActiveTask* runningTasks[PARALLEL_CUSTOM_SIZE];
     TaskList();
-    void addNewTask(Task* task);
+    void addNewTask(Task const& task);
     int searchAck(String command);
     void removeTask(String task);
 };

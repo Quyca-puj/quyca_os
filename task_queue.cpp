@@ -8,17 +8,18 @@ TaskQueue::TaskQueue(){
   pendingTasks = 0;
 }
 
-void TaskQueue::push(Task *task){
+void TaskQueue::push(Task task){
   runningTasks[pendingTasks] = task;
   pendingTasks++;
 }
 
 Task* TaskQueue::peekPrevious(){
-  return runningTasks[0];
+  return &runningTasks[0];
 }
 
-Task* TaskQueue::pop(){
-  Task * task = runningTasks[0];
+Task TaskQueue::pop(){
+  Task task = runningTasks[0];
+
   for (int i = 0; i < pendingTasks; i++)
   {
     runningTasks[i] = runningTasks[i + 1];

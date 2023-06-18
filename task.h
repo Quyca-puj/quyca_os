@@ -8,27 +8,29 @@
 #include "RobotConstants.h"
 
 enum TaskType {
-	NONE,
-	MOVEMENT,
-	EMOTION,
-	CUSTOM,
-	BASIC,
-	CONFIG
+  NONE,
+  MOVEMENT,
+  EMOTION,
+  CUSTOM,
+  BASIC,
+  CONFIG
 };
 
 struct Task
 {
-    char command[BUFFER_SIZE];
-    TaskType type;
-    long speed;
-    long time;
-    long period;
-    char emo1[BUFFER_SIZE];
-    char emo2[BUFFER_SIZE];
-    int ack;
+  char command[BUFFER_SIZE];
+  String *opt_args;
+  TaskType type;
+  long speed;
+  long time;
+  long period;
+  char emo1[BUFFER_SIZE];
+  char emo2[BUFFER_SIZE];
+  int ack;
 
-    Task(String command, int ack);
-    Task();
+  Task(String command, int ack);
+  Task(String command);
+  Task();
 };
 
 #endif

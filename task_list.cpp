@@ -5,9 +5,9 @@ TaskList::TaskList()
   pendingTasks = 0;
 }
 
-void TaskList::addNewTask(Task *task)
+void TaskList::addNewTask(Task const& task)
 {
-  runningTasks[pendingTasks] = new ActiveTask(String(task->command), task->ack);
+  runningTasks[pendingTasks] = new ActiveTask(String(task.command), task.ack);
   pendingTasks++;
 }
 

@@ -9,12 +9,13 @@ class TaskQueue
 {
 public:
     int pendingTasks;
-    Task* runningTasks[PARALLEL_CUSTOM_SIZE];
+    Task runningTasks[PARALLEL_CUSTOM_SIZE];
     TaskQueue();
     bool isEmpty();
-    void push(Task* task);
+
+    void push(Task task);
     Task* peekPrevious();
-    Task* pop();
+    Task pop();
 };
 
 #endif
