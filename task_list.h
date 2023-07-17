@@ -17,7 +17,7 @@ public:
     void addNewTask(Task const& task);
     int searchAck(String command);
     void removeTask(String task);
-    Task pop();
+    Task* pop();
 };
 
 #endif

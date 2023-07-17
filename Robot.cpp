@@ -1,8 +1,8 @@
 #include "Robot.h"
 
+// Inicializacion de las variables de control
 Robot::Robot()
 {
-  // Inicializacion de las variables de control
   emoTimeElapsed = 0;
   emoAuxTimeElapsed = 0;
   mvtTimeElapsed = 0;
@@ -39,9 +39,9 @@ void Robot::connectClient(String returnIP, int returnPort)
   }
 }
 
+// Inicio del Serial, conexion a wifi e inicializacion de motores.
 void Robot::setupRobot(int serial, String givenAlias)
 {
-  // Inicio del Serial, conexion a wifi e inicializacion de motores.
   String ssid = WIFI_SSID;
   String password = WIFI_PASS;
 
@@ -79,6 +79,7 @@ bool Robot::isFeasible(Task *msg)
  */
 void Robot::classifyTask(Task const& task)
 {
+  STprint("classifying: " + task.to_string());
   if (processImmediateTask(task))
     return;
 
@@ -86,17 +87,17 @@ void Robot::classifyTask(Task const& task)
   {
   case TaskType::MOVEMENT:
     runningMvt.addNewTask(task);
-  break;
+    break;
   case TaskType::EMOTION:
     runningEmotions.addNewTask(task);
-  break;
+    break;
   case TaskType::CUSTOM:
     runningCustoms.addNewTask(task);
-  break;
+    break;
   case TaskType::BASIC:
     runningBasics.addNewTask(task);
-  break;
-  case TaskType::CONFIG:
+    break;
+  default:
     break;
   }
 }
@@ -109,12 +110,22 @@ bool Robot::processImmediateTask(Task const& task)
   bool ret = false;
 
   String cmd = String(task.command);
-  if (cmd.equals(CFG_OFFSET_DER))
+  if (cmd.equals(CFG_OFFSET_DER) && task.opt_args != nullptr)
   {
+    config.set(
+      ConfigOptions::SPEED_OFFSET_RIGHT,
+      config.get(ConfigOptions::SPEED_OFFSET_RIGHT) + task.opt_args[0].toInt()
+      );
+    STprint("new right offset: " + config.get(ConfigOptions::SPEED_OFFSET_RIGHT));
     ret = true;
   }
-  else if (cmd.equals(CFG_OFFSET_IZQ))
+  else if (cmd.equals(CFG_OFFSET_IZQ) && task.opt_args != nullptr)
   {
+    config.set(
+      ConfigOptions::SPEED_OFFSET_LEFT,
+      config.get(ConfigOptions::SPEED_OFFSET_LEFT) + task.opt_args[0].toInt()
+      );
+    STprint("new left offset: " + config.get(ConfigOptions::SPEED_OFFSET_LEFT));
     ret = true;
   }
   else if (cmd.equals(BASIC_CONNECT) && task.opt_args != nullptr)
@@ -214,7 +225,6 @@ void Robot::processTasks(bool checkStatus, WiFiClient client)
 
 void Robot::unwrapTask(Task const& task)
 {
-  command = String(task.command);
   if (task.type == TaskType::MOVEMENT)
   {
     if (task.speed > 0)
@@ -264,12 +274,12 @@ void Robot::unwrapTask(Task const& task)
   }
 }
 
-void Robot::answerCommand(Task const& task, WiFiClient client)
+void Robot::answerCommand(Task* const& task, WiFiClient client)
 {
   STprint("list size");
   // STprint(list->pendingTasks);
   STprint("task");
-  STprint(task.command);
+  STprint(task->command);
   STprint("Answering");
   // STprint(ack);
   STprint("list size");
@@ -279,11 +289,11 @@ void Robot::answerCommand(Task const& task, WiFiClient client)
   // con ese ack.
   if (returnSock && returnSock.connected())
   {
-    returnSock.println(task.ack);
+    returnSock.println(task->ack);
   }
   else
   {
-    client.println(task.ack);
+    client.println(task->ack);
   }
   STprint("Answered");
 }
@@ -314,8 +324,12 @@ void Robot::checkEmotionCommands(WiFiClient client)
   if (runningEmotions.pendingTasks == 0)
     return;
 
-  Task task = runningEmotions.pop();
-  String cmd = String(task.command);
+  Task* task = runningEmotions.pop();
+
+  if (task == nullptr)
+    return;
+
+  String cmd = String(task->command);
 
   bool toRet = false;
   if (cmd.equals(EMOTION_STR))
@@ -324,7 +338,7 @@ void Robot::checkEmotionCommands(WiFiClient client)
     readFaces(emotion);
     screenInactive = true;
   }
-  else if (cmd.equals(EMOTION_SWITCH) || runningEmotions.searchAck(EMOTION_SWITCH) != -1)
+  else if (cmd.equals(EMOTION_SWITCH))
   {
     isEmoExpropiative = false;
     screenInactive = false;
@@ -353,11 +367,15 @@ void Robot::checkEmotionCommands(WiFiClient client)
 
 void Robot::checkMotorCommands(WiFiClient client)
 {
-  if (runningMvt.pendingTasks == 0)
+  // nada para hacer y no hace nada actualmente
+  if (runningMvt.pendingTasks == 0 && !getMotorsStatus())
     return;
 
-  Task at = runningMvt.pop();
-  String cmd = at.command;
+  Task* at = runningMvt.pop();
+  if (at == nullptr)
+    return;
+
+  String cmd = at->command;
 
   bool toRet = false;
   // if else de las funciones relacionadas al motor principal. Se maneja con else if porque solo puede haber una accion en el motor activa.
@@ -464,8 +482,11 @@ void Robot::robotBasicCommands(WiFiClient client)
   if (runningBasics.pendingTasks == 0)
     return;
 
-  Task at = runningBasics.pop();
-  String cmd = String(at.command);
+  Task* at = runningBasics.pop();
+  if (at == nullptr)
+    return;
+
+  String cmd = String(at->command);
 
   bool toRet = false;
   if (cmd.equals(BASIC_CALIB))
@@ -897,7 +918,7 @@ void Robot::processCommands(WiFiClient client)
 bool Robot::switchFaces(String emo1, String emo2, long time, long period)
 {
   STprint("switchFaces in");
-  boolean toRet = robotDelay(time, &emoTimeElapsed);
+  bool toRet = robotDelay(time, &emoTimeElapsed);
   if (toRet)
   {
     screenInactive = !toRet;
@@ -949,7 +970,7 @@ bool Robot::robotDelay(long time, long *timeElapsed)
 
 void Robot::answerPendingList (TaskList *list, WiFiClient client)
 {
-  Task aux;
+  Task* aux;
   while (list->pendingTasks > 0)
   {
     aux = list->pop();
@@ -972,7 +993,7 @@ void Robot::answerPendingByType(TaskList *list, WiFiClient client)
   {
     aux = list->runningTasks[i];
 
-    answerCommand(aux, client);
+    answerCommand(&aux, client);
   }
 }
 

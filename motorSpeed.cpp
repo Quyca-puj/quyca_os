@@ -9,6 +9,7 @@ void setupmotor(){
   leftServo.write(config.get(ConfigOptions::SPEED_OFFSET_LEFT));
   rightServo.write(config.get(ConfigOptions::SPEED_OFFSET_RIGHT));
 }
+
 void setSpeedsMotor(int leftSp,int rigthSp){
   //***********************************************************************************
       // Define the result varible for left speed.

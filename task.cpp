@@ -1,4 +1,16 @@
 #include "task.h"
+#include "utils.h"
+
+String Task::to_string() const
+{
+  return
+    "Command: " + String(command) +
+    " task type: " + type +
+    " time: " + time +
+    " period: " + period +
+    " emo1: " + emo1 +
+    " emo2: " + emo2;
+}
 
 Task::Task()
 {
@@ -19,8 +31,64 @@ Task::Task(String command, int ack)
   this->ack = ack;
 }
 
+void movementTask(Task* task, String cmd, String* args) {
+  task->type = TaskType::MOVEMENT;
+  if (args[0].equals(EMPTY_PARAM))
+  {
+    task->speed = config.get(ConfigOptions::SPEED);
+  }
+  else
+  {
+    task->speed = args[0].toInt();
+  }
+  if (Action::isMvtTimed(cmd))
+  {
+    task->time = args[1].toInt();
+  }
+}
+
+void emotionTask(Task* task, String cmd, String* args) {
+  task->type = TaskType::EMOTION;
+  if (cmd.equals(EMOTION_SWITCH))
+  {
+    args[0].toCharArray(task->emo1, BUFFER_SIZE);
+    args[1].toCharArray(task->emo2, BUFFER_SIZE);
+    task->time = args[2].toInt();
+    task->period = args[3].toInt();
+  }
+  else if (cmd.equals(EMOTION_STR))
+  {
+    args[0].toCharArray(task->emo1, BUFFER_SIZE);
+  }
+}
+
+void customTask(Task* task, String cmd, String* args, int currentArgs) {
+  task->type = TaskType::CUSTOM;
+  if (currentArgs > 1)
+  {
+    if (args[0].equals(EMPTY_PARAM))
+    {
+      task->speed = config.get(ConfigOptions::SPEED);
+    }
+    else
+    {
+      task->speed = args[0].toInt();
+    }
+  }
+}
+
+void basicTask(Task* task, String cmd, String* args) {
+  task->type = TaskType::BASIC;
+  if (cmd.equals(BASIC_CONNECT))
+  {
+    task->opt_args = new String[2];
+    task->opt_args[0] = args[0];
+    task->opt_args[1] = args[1];
+  }
+}
+
 /**
- * Logica para conversion de comandos a tareas nativas. Incluye identificación de tipo de tarea - Va afuera
+ * Logica para conversion de comandos a tareas nativas. Incluye identificación de tipo de tarea
  */
 Task::Task(String msg)
 {
@@ -29,10 +97,8 @@ Task::Task(String msg)
   String args[MAX_ARGS] = {};
   String cmd;
 
-  // for (int i = 0; i < MAX_ARGS; i++)
-  // { // inicialziacion del arreglo de parametros
-  //   args[i] = "";
-  // }
+  STprint("nuevo task: " + msg);
+
   for (char index : msg)
   { // recorrer la cadena
     if (isSpace(index))
@@ -60,65 +126,29 @@ Task::Task(String msg)
   {
     if (Action::isMovement(cmd))
     {
-      this->type = TaskType::MOVEMENT;
-      if (args[0].equals(EMPTY_PARAM))
-      {
-        this->speed = config.get(ConfigOptions::SPEED);
-      }
-      else
-      {
-        this->speed = args[0].toInt();
-      }
-      if (Action::isMvtTimed(cmd))
-      {
-        this->time = args[1].toInt();
-      }
+      movementTask(this, cmd, args);
     }
     else if (Action::isEmotion(cmd))
     {
-      this->type = TaskType::EMOTION;
-      if (cmd.equals(EMOTION_SWITCH))
-      {
-        args[0].toCharArray(this->emo1, BUFFER_SIZE);
-        args[1].toCharArray(this->emo2, BUFFER_SIZE);
-        this->time = args[2].toInt();
-        this->period = args[3].toInt();
-      }
-      else if (cmd.equals(EMOTION_STR))
-      {
-        args[0].toCharArray(this->emo1, BUFFER_SIZE);
-      }
+      emotionTask(this, cmd, args);
     }
     else if (Action::isCustom(cmd))
     {
-      this->type = TaskType::CUSTOM;
-      if (currentArgs > 1)
-      {
-        if (args[0].equals(EMPTY_PARAM))
-        {
-          this->speed = config.get(ConfigOptions::SPEED);
-        }
-        else
-        {
-          this->speed = args[0].toInt();
-        }
-      }
+      customTask(this, cmd, args, currentArgs);
     }
     else if (Action::isBasic(cmd))
     {
-      this->type = TaskType::BASIC;
-      if (cmd.equals(BASIC_CONNECT))
-      {
-        this->opt_args = new String[2];
-        this->opt_args[0] = args[0];
-        this->opt_args[1] = args[1];
-      }
+      basicTask(this, cmd, args);
     }
     else if (Action::isConfig(cmd))
     {
       this->type = TaskType::CONFIG;
+      this->opt_args = new String[1];
+      this->opt_args[0] = args[0];
     }
     cmd.toCharArray(this->command, BUFFER_SIZE);
     this->ack = args[currentArgs - 1].toInt();
   }
+
+  STprint(this->to_string());
 }

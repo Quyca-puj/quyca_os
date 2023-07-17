@@ -31,6 +31,7 @@ struct Task
   Task(String command, int ack);
   Task(String command);
   Task();
+  String to_string() const;
 };
 
 #endif

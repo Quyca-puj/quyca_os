@@ -24,7 +24,6 @@ class Robot
 
   int currentArgs;
   bool movementCurrentState;
-  String command;
   long mvtTimer;
   long emotionTimer;
   long emotionPeriod;
@@ -71,7 +70,7 @@ private:
   bool isFeasibleCustom(Task *msg);
   void unwrapTask(Task const& task);
   Task *msgToTask(String msg);
-  void answerCommand(Task const& task, WiFiClient client);
+  void answerCommand(Task* const& task, WiFiClient client);
   void answerPendingByType(TaskList *list, WiFiClient client);
 
   // process commands

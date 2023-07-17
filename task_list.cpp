@@ -7,23 +7,25 @@ TaskList::TaskList()
 
 void TaskList::addNewTask(Task const& task)
 {
-  STprint("adding task: " + String(task.command));
+  STprint("adding task: " + task.to_string());
   runningTasks[pendingTasks] = task;
   pendingTasks++;
 }
 
-Task TaskList::pop()
+Task* TaskList::pop()
 {
-  int pos = 0;
-  Task at = runningTasks[0];
+  if (pendingTasks == 0)
+    return nullptr;
+
+  int pos = pendingTasks-1;
+  Task at = runningTasks[pos];
   for (int i = pos; i < pendingTasks; i++)
   {
     runningTasks[i] = runningTasks[i + 1];
   }
   pendingTasks--;
 
-  STprint("popping task: " + String(at.command));
-  return at;
+  return new Task(at);
 }
 
 int TaskList::searchAck(String command)
