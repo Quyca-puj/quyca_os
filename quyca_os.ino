@@ -54,11 +54,11 @@ void loop()
         messages = "";
         rec_flag = false;
       }
-      robot.processTasks(!rec_flag, client);
+      robot.processTasks(client);
     }
     Serial.println("Client Disconnected");
     client.stop();
   }else if (robot.isInAction()){
-    robot.processTasks(!rec_flag, client);
+    robot.processTasks(client);
   }
 }

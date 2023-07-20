@@ -67,10 +67,10 @@ void Robot::setupRobot(int serial, String givenAlias)
  */
 bool Robot::isFeasible(Task *msg)
 {
-  return TaskType::MOVEMENT && isFeasibleMvt(msg)
-    || TaskType::EMOTION && isFeasibleEmotion(msg)
-    || TaskType::CUSTOM && isFeasibleCustom(msg)
-    || TaskType::BASIC
+  return msg->type == TaskType::MOVEMENT && isFeasibleMvt(msg)
+      || msg->type == TaskType::EMOTION && isFeasibleEmotion(msg)
+      || msg->type == TaskType::CUSTOM && isFeasibleCustom(msg)
+      || msg->type == TaskType::BASIC
     ;
 }
 
@@ -86,18 +86,23 @@ void Robot::classifyTask(Task const& task)
   switch(task.type)
   {
   case TaskType::MOVEMENT:
+    STprint("Movement type");
     runningMvt.addNewTask(task);
     break;
   case TaskType::EMOTION:
+    STprint("emotion type");
     runningEmotions.addNewTask(task);
     break;
   case TaskType::CUSTOM:
+    STprint("custom type");
     runningCustoms.addNewTask(task);
     break;
   case TaskType::BASIC:
+    STprint("basic type");
     runningBasics.addNewTask(task);
     break;
   default:
+    STprint("None type");
     break;
   }
 }
@@ -110,25 +115,30 @@ bool Robot::processImmediateTask(Task const& task)
   bool ret = false;
 
   String cmd = String(task.command);
-  if (cmd.equals(CFG_OFFSET_DER) && task.opt_args != nullptr)
+
+  if (task.opt_args == nullptr)
+    return ret;
+
+  if (cmd.equals(CFG_OFFSET_DER))
   {
     config.set(
       ConfigOptions::SPEED_OFFSET_RIGHT,
       config.get(ConfigOptions::SPEED_OFFSET_RIGHT) + task.opt_args[0].toInt()
       );
-    STprint("new right offset: " + config.get(ConfigOptions::SPEED_OFFSET_RIGHT));
+    STprint("new right offset: " + String(config.get(ConfigOptions::SPEED_OFFSET_RIGHT)));
     ret = true;
   }
-  else if (cmd.equals(CFG_OFFSET_IZQ) && task.opt_args != nullptr)
+  else if (cmd.equals(CFG_OFFSET_IZQ))
   {
+  STprint(2);
     config.set(
       ConfigOptions::SPEED_OFFSET_LEFT,
       config.get(ConfigOptions::SPEED_OFFSET_LEFT) + task.opt_args[0].toInt()
       );
-    STprint("new left offset: " + config.get(ConfigOptions::SPEED_OFFSET_LEFT));
+    STprint("new left offset: " + String(config.get(ConfigOptions::SPEED_OFFSET_LEFT)));
     ret = true;
   }
-  else if (cmd.equals(BASIC_CONNECT) && task.opt_args != nullptr)
+  else if (cmd.equals(BASIC_CONNECT))
   {
     STprint("is basic connect");
     ret = true;
@@ -191,7 +201,7 @@ void Robot::processMsg(String msg, bool checkStatus)
 /**
  * procesar comandos y revision de comandos en ejecucion
  */
-void Robot::processTasks(bool checkStatus, WiFiClient client)
+void Robot::processTasks(WiFiClient client)
 {
   if (!taskQueue.isEmpty())
   {
@@ -216,7 +226,6 @@ void Robot::processTasks(bool checkStatus, WiFiClient client)
       STprint(emotion);
       STprint("toReturn");
       // STprint(arguments[currentArgs - 1]);
-      checkStatus = false;
     }
   }
 
@@ -225,8 +234,9 @@ void Robot::processTasks(bool checkStatus, WiFiClient client)
 
 void Robot::unwrapTask(Task const& task)
 {
-  if (task.type == TaskType::MOVEMENT)
-  {
+  STprint("Unwrapping task");
+  switch(task.type) {
+  case TaskType::MOVEMENT:
     if (task.speed > 0)
     {
       config.set(ConfigOptions::SPEED, task.speed);
@@ -235,9 +245,8 @@ void Robot::unwrapTask(Task const& task)
     {
       mvtTimer = task.time;
     }
-  }
-  if (task.type == TaskType::EMOTION)
-  {
+    break;
+  case TaskType::EMOTION:
     if (strcmp(task.command, EMOTION_STR) == 0)
     {
       if (strlen(task.emo1) > 1)
@@ -264,13 +273,13 @@ void Robot::unwrapTask(Task const& task)
         emotionPeriod = task.period;
       }
     }
-  }
-  if (task.type == TaskType::CUSTOM)
-  {
+    break;
+  case TaskType::CUSTOM:
     if (task.speed > 0)
     {
       config.set(ConfigOptions::SPEED, task.speed);
     }
+    break;
   }
 }
 
@@ -999,9 +1008,9 @@ void Robot::answerPendingByType(TaskList *list, WiFiClient client)
 
 bool Robot::isInAction()
 {
-  return
-    runningBasics.pendingTasks > 0 ||
-    runningMvt.pendingTasks > 0 ||
-    runningEmotions.pendingTasks > 0 ||
-    runningCustoms.pendingTasks > 0 || taskQueue.pendingTasks > 0;
+  return runningBasics.pendingTasks > 0
+      || runningMvt.pendingTasks > 0
+      || runningEmotions.pendingTasks > 0
+      || runningCustoms.pendingTasks > 0
+      || taskQueue.pendingTasks > 0;
 }

@@ -105,7 +105,7 @@ public:
   Robot();
   void setupRobot(int serial, String givenAlias);
   void processMsg(String msg, bool checkStatus);
-  void processTasks(bool checkStatus, WiFiClient client);
+  void processTasks(WiFiClient client);
   bool adelante_atras();
   bool tuntun();
   bool cuadrado();

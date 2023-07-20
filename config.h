@@ -2,9 +2,9 @@
 #define ROBOT_CONFIG_H_
 
 enum ConfigOptions {
-	SPEED,
-	SPEED_OFFSET_RIGHT,
-	SPEED_OFFSET_LEFT,
+  SPEED,
+  SPEED_OFFSET_RIGHT,
+  SPEED_OFFSET_LEFT,
 };
 
 class RobotConfig {
