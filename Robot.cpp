@@ -95,6 +95,10 @@ bool Robot::isFeasible(Task *msg)
     toRet = true;
     runningBasics.addNewTask(msg);
   }
+  else if (strcmp(msg->type, TYPE_CONFIG) == 0)
+  {
+    toRet = true;
+  }
   return toRet;
 }
 
@@ -974,6 +978,21 @@ Task* Robot::msgToTask(String msg)
         returnPort = arguments[1].toInt();
       }
     }
+    else if (isConfigAction(command)) {
+      strcpy(task->type, TYPE_CONFIG);
+      int change = arguments[0].toInt();
+      ConfigOptions option;
+      if (command.equals(CFG_OFFSET_DER)) {
+        option = ConfigOptions::SPEED_OFFSET_RIGHT;
+      }
+      else if (command.equals(CFG_OFFSET_IZQ)) {
+        option = ConfigOptions::SPEED_OFFSET_LEFT;
+      }
+
+      int current = config.get(option);
+      config.set(option, current + change);
+      setSpeedsMotor(ConfigOptions::SPEED_OFFSET_LEFT, ConfigOptions::SPEED_OFFSET_RIGHT);
+    }
     command.toCharArray(task->command, BUFFER_SIZE);
     task->ack = arguments[currentArgs - 1].toInt();
   }
@@ -981,40 +1000,47 @@ Task* Robot::msgToTask(String msg)
   return task;
 }
 
+bool Robot::isConfigAction(String command)
+{
+	return command.equals(CFG_OFFSET_DER)
+      || command.equals(CFG_OFFSET_IZQ)
+		;
+}
+
 bool Robot::isMvtAction(String command)
 {
   return command.equals(MVT_FORWARD)
-	  || command.equals(MVT_LEFT)
-	  || command.equals(MVT_RIGHT)
-	  || command.equals(MVT_ROLL)
-	  || command.equals(MVT_REVERSEROLL)
-	  || isMvtTimedAction(command)
+	    || command.equals(MVT_LEFT)
+	    || command.equals(MVT_RIGHT)
+	    || command.equals(MVT_ROLL)
+	    || command.equals(MVT_REVERSEROLL)
+	    || isMvtTimedAction(command)
 	  ;
 }
 
 bool Robot::isMvtTimedAction(String command)
 {
   return command.equals(MVT_TIMEDFORWARD)
-	  || command.equals(MVT_TIMEDREVERSE)
-	  || command.equals(MVT_TIMEDLEFT)
-	  || command.equals(MVT_TIMEDRIGHT)
+	    || command.equals(MVT_TIMEDREVERSE)
+	    || command.equals(MVT_TIMEDLEFT)
+	    || command.equals(MVT_TIMEDRIGHT)
 	  ;
 }
 
 bool Robot::isEmoAction(String command)
 {
   return command.equals(EMOTION_STR)
-	  || command.equals(EMOTION_SWITCH)
-	  || command.equals(EMOTION_OFF)
+	    || command.equals(EMOTION_SWITCH)
+	    || command.equals(EMOTION_OFF)
 	  ;
 }
 
 bool Robot::isBasicAction(String command)
 {
   return command.equals(BASIC_STOP_ALL)
-	  || command.equals(BASIC_CALIB)
-	  || command.equals(BASIC_STOP_MVT)
-	  || command.equals(BASIC_CONNECT)
+	    || command.equals(BASIC_CALIB)
+	    || command.equals(BASIC_STOP_MVT)
+	    || command.equals(BASIC_CONNECT)
 	  ;
 }
 

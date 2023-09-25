@@ -83,6 +83,7 @@ private:
   void readCustomVariablesSensors(String msg, WiFiClient client);
   void JointServoMsg(String msg, WiFiClient client);
   void processCommands(String msg, bool checkStatus, WiFiClient client);
+  bool isConfigAction(String msg);
   bool isMvtAction(String command);
   bool isMvtTimedAction(String command);
   bool isEmoAction(String command);
