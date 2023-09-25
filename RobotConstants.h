@@ -5,10 +5,13 @@
 #define EMOTION_SWITCH "s_emotions"
 #define EMOTION_OFF "off_emotions"
 #define VERSION "2.0"
+#define CFG_OFFSET_DER "cfg_offset_der"
+#define CFG_OFFSET_IZQ "cfg_offset_izq"
 #define TYPE_MOVEMENT "MOVEMENT"
 #define TYPE_EMOTION "EMOTION"
 #define TYPE_CUSTOM "CUSTOM"
 #define TYPE_BASIC "BASIC"
+#define TYPE_CONFIG "CONFIG"
 #define MVT_FORWARD "forward"
 #define MVT_LEFT "left"
 #define MVT_RIGHT "right"
@@ -34,3 +37,5 @@
 #define BUFFER_SIZE 20
 #define EMPTY_STRING "\0"
 #define EMPTY_PARAM "*"
+
+#define PARALLEL_CUSTOM_SIZE 10

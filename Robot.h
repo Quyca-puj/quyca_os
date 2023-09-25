@@ -6,14 +6,19 @@
 #include "FacesLed.h"
 #include "utils.h"
 #include "JointExtra.h"
-#include <ArduinoQueue.h>
+#include "config.h"
+
+#include "wifi_config.h"
+#include "task.h"
+#include "task_list.h"
+#include "task_queue.h"
 
 #include "wifi_config.h"
 
 class Robot
 {
+  RobotConfig rc;
 
-  int speeds;
   int currentArgs;
   bool movementCurrentState;
   String command;
@@ -41,41 +46,51 @@ class Robot
   // cppQueue taskQueue = cppQueue(sizeof(Task), QUEUE_SIZE, FIFO, false);
   TaskQueue taskQueue;
 private:
+  // motors
   bool getMotorsStatus();
+  void checkMotorCommands(String msg, bool checkStatus, WiFiClient client);
+
+  // movement
   bool robotForward();
   bool robotTurn(int dir);
   bool robotTimedMove(int dir);
   bool robotTimedTurn(int dir);
   bool robotStopMovement();
   void robotForeverMove(int dir);
-  Task *msgToTask(String msg);
-  void calibration();
+
+  // faces
   bool readFaces(String msg);
+  bool readFaces(String msg, WiFiClient);
+  bool switchFaces(String emo1, String emo2, long time, long period);
+
+  // task
+  bool isFeasible(Task *msg);
+  bool isFeasibleMvt(Task *msg);
+  bool isFeasibleEmotion(Task *msg);
+  bool isFeasibleCustom(Task *msg);
+  void unwrapTask(Task *task);
+  Task *msgToTask(String msg);
+  void answerCommand(TaskList *list,String task, WiFiClient client);
+  void answerPendingByType(TaskList *list, WiFiClient client);
+
+
+  void calibration();
   void connectClient();
-  void checkMotorCommands(String msg, bool checkStatus, WiFiClient client);
   void checkEmotionCommands(String msg, bool checkStatus, WiFiClient client);
   void checkCustomCommands(String msg, bool checkStatus, WiFiClient client);
   void robotBasicCommands(String msg, bool checkStatus, WiFiClient client);
   void readCustomVariablesMotors(String msg, WiFiClient client);
   void readCustomVariablesSensors(String msg, WiFiClient client);
   void JointServoMsg(String msg, WiFiClient client);
-  bool readFaces(String msg, WiFiClient);
   void processCommands(String msg, bool checkStatus, WiFiClient client);
-  void answerCommand(TaskList *list,String task, WiFiClient client);
-  bool isFeasible(Task *msg);
-  bool isFeasibleMvt(Task *msg);
-  bool isFeasibleEmotion(Task *msg);
-  bool isFeasibleCustom(Task *msg);
+  bool isConfigAction(String msg);
   bool isMvtAction(String command);
   bool isMvtTimedAction(String command);
   bool isEmoAction(String command);
   bool isCustomAction(String command);
   bool isBasicAction(String command);
-  bool switchFaces(String emo1, String emo2, long time, long period);
   bool robotDelay(long time, long *timeElapsed);
-  void unwrapTask(Task *task);
   void answerAllPending(WiFiClient client);
-  void answerPendingByType(TaskList *list, WiFiClient client);
 public:
   String ip;
   String alias;
