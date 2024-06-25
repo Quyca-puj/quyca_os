@@ -10,15 +10,25 @@ En este archivo se deberán contener los siguientes valores. Ambos deben ser str
     #define WIFI_PASS "pass_red"
 
 ## Instalar board para el nodemcu
+instalar controlador 'esp8266'
+
+### IDE
+https://arduino.github.io/arduino-cli/1.0/getting-started/#adding-3rd-party-cores
+
+
+### CLI
 https://www.instructables.com/Quick-Start-to-Nodemcu-ESP8266-on-Arduino-IDE/
 
-instalar controlador 'esp8266'
 
 ## dependencias adicionales
 - QTRSensors
 - Adafruit NeoPixel
 - ArduinoQueue
+- AUnit
 
+Pueden ser instaladas a traves del IDE de arduino o con el siguiente comando:
+
+    make install
 
 ## Linux 
 En caso de estar usando linux para el desarrollo
