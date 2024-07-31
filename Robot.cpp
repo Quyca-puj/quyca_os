@@ -56,6 +56,7 @@ void Robot::setupRobot(int serial, String givenAlias)
   delay(4000);
   alias = givenAlias;
   setupmotor();
+  setupSensors();
   setupFaces();
   JointSetup();
 }
@@ -182,7 +183,6 @@ void Robot::unwrapTask(Task *task)
   command = String(task->command);
   if (strcmp(task->type, TYPE_MOVEMENT) == 0)
   {
-    calibrationQuyca.readCalibration();
     if (task->speed > 0)
     {
       config.set(ConfigOptions::SPEED, task->speed);
@@ -259,16 +259,9 @@ void Robot::answerCommand(TaskList *list, String task, WiFiClient client)
 
 void Robot::calibration()
 {
-  calibrationQuyca.resetCalibration();
   for (uint16_t i = 0; i < 390; i++)
   {
-    if ((i > 0 && i <= 30)
-        || (i > 60 && i <= 90)
-        || (i > 120 && i <= 150)
-        || (i > 180 && i <= 210)
-        || (i > 240 && i <= 270)
-        || (i > 300 && i <= 330)
-        || (i > 360 && i <= 390))
+    if ((i > 0 && i <= 30) || (i > 60 && i <= 90) || (i > 120 && i <= 150) || (i > 180 && i <= 210) || (i > 240 && i <= 270) || (i > 300 && i <= 330) || (i > 360 && i <= 390))
     {
       // avanzar
       setSpeedsMotor(CALIBRATION_SPEED, CALIBRATION_SPEED);
@@ -278,7 +271,7 @@ void Robot::calibration()
       // retroceder
       setSpeedsMotor(-CALIBRATION_SPEED, -CALIBRATION_SPEED);
     }
-    calibrationQuyca.calibrate();
+    qtr.calibrate();
     delay(20);
   }
   setSpeedsMotor(0, 0); // Finalizacion de la calibración
@@ -508,7 +501,6 @@ bool Robot::robotStopMovement()
 {
   STprint("robotStopMovement Command");
   setSpeedsMotor(0, 0);
-  calibrationQuyca.updateCalibration();
   forwardActive = false;
   rightActive = false;
   leftActive = false;
@@ -521,7 +513,6 @@ bool Robot::robotStopMovement()
 bool Robot::getMotorsStatus() {
   return !(rightActive || leftActive || forwardActive || reverseActive);
 }
-
 void Robot::readCustomVariablesMotors(String msg, WiFiClient client)
 {
   String messageint = "";
@@ -610,23 +601,23 @@ void Robot::readCustomVariablesSensors(String msg, WiFiClient client)
   }
   if (msg.equals("sensorReadFrontL"))
   {
-    calibrationQuyca.readValues();
-    client.println(calibrationQuyca.sensorValues[0]);
+    ReadValues();
+    client.println(sensorValues[0]);
   }
   if (msg.equals("sensorReadFrontR"))
   {
-    calibrationQuyca.readValues();
-    client.println(calibrationQuyca.sensorValues[1]);
+    ReadValues();
+    client.println(sensorValues[1]);
   }
   if (msg.equals("sensorReadBackL"))
   {
-    calibrationQuyca.readValues();
-    client.println(calibrationQuyca.sensorValues[2]);
+    ReadValues();
+    client.println(sensorValues[2]);
   }
   if (msg.equals("sensorReadBackR"))
   {
-    calibrationQuyca.readValues();
-    client.println(calibrationQuyca.sensorValues[3]);
+    ReadValues();
+    client.println(sensorValues[3]);
   }
 }
 

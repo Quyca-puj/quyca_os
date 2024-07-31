@@ -24,11 +24,11 @@ bool followLine(int speed) {
   int rightMotorSpeed, leftMotorSpeed, motorSpeed;
   // definición de las constantes del control:*****************************************************************************mejora mandar de parametros los ks
 
-  calibrationQuyca.readValues();
+  ReadValues();
   //Detect Black Color by the Front Sensor
   if (overIntersection == true) {
-    calibrationQuyca.readValues();
-    if (calibrationQuyca.sensorValues[2] < 1000 && calibrationQuyca.sensorValues[3] < 1000 ) {
+    ReadValues();
+    if (sensorValues[2] < 1000 && sensorValues[3] < 1000 ) {
       overIntersection = false;
       return false;
     }
@@ -37,39 +37,39 @@ bool followLine(int speed) {
     return false;
   }
 
-  if (calibrationQuyca.sensorValues[2] >= 1500 ^ calibrationQuyca.sensorValues[3] >= 1500 ) {
-    if (calibrationQuyca.sensorValues[2] >= 1500 && finds == false) {
+  if (sensorValues[2] >= 1500 ^ sensorValues[3] >= 1500 ) {
+    if (sensorValues[2] >= 1500 && finds == false) {
       Time1 = millis();
       finds = true;
     }
-    if (finds == true && calibrationQuyca.sensorValues[3]) {
+    if (finds == true && sensorValues[3]) {
       if (millis() - Time1 <= period1) {
-        calibrationQuyca.sensorValues[2] = 2000;
-        calibrationQuyca.sensorValues[3] = 2000;
+        sensorValues[2] = 2000;
+        sensorValues[3] = 2000;
       }
       finds = false;
     }
-    if (calibrationQuyca.sensorValues[3] >= 1500 && finds == false) {
+    if (sensorValues[3] >= 1500 && finds == false) {
       Time1 = millis();
       finds = true;
     }
-    if (finds == true && calibrationQuyca.sensorValues[2]) {
+    if (finds == true && sensorValues[2]) {
       if (millis() - Time1 <= period1) {
-        calibrationQuyca.sensorValues[2] = 2000;
-        calibrationQuyca.sensorValues[3] = 2000;
+        sensorValues[2] = 2000;
+        sensorValues[3] = 2000;
       }
       finds = false;
     }
   }
-  if (calibrationQuyca.sensorValues[2] >= 1500 && calibrationQuyca.sensorValues[3] >= 1500 ) {
+  if (sensorValues[2] >= 1500 && sensorValues[3] >= 1500 ) {
     setSpeedsMotor(0, 0);
     overIntersection = true;
     return true;
   } else {
     uint16_t SS[2];
-    SS[0] = calibrationQuyca.sensorValues[0];
-    SS[1] = calibrationQuyca.sensorValues[1];
-    error = calibrationQuyca.readLineBlack(SS) - 500;
+    SS[0] = sensorValues[0];
+    SS[1] = sensorValues[1];
+    error = qtr.readLineBlack(SS) - 500;
     integral = integral + error;
     if ((error * integral) < 0) integral = 0;
 
@@ -97,10 +97,10 @@ bool followLine(int speed) {
     if (leftMotorSpeed < 0) {
       leftMotorSpeed = 0;
     }
-    /*     if(calibrationQuyca.sensorValues[2] < 1500 && calibrationQuyca.sensorValues[3] >1500 &&(calibrationQuyca.sensorValues[0] < 1500 || calibrationQuyca.sensorValues[1]<1500)){
+    /*     if(sensorValues[2] < 1500 && sensorValues[3] >1500 &&(sensorValues[0] < 1500 || sensorValues[1]<1500)){
             setSpeedsMotor(leftMotorSpeed*(1+0.5),rightMotorSpeed*0.1);
           }else{
-            if(calibrationQuyca.sensorValues[2] > 1500 && calibrationQuyca.sensorValues[3] <1500 &&(calibrationQuyca.sensorValues[0] < 1500 || calibrationQuyca.sensorValues[1]<1500)){
+            if(sensorValues[2] > 1500 && sensorValues[3] <1500 &&(sensorValues[0] < 1500 || sensorValues[1]<1500)){
               setSpeedsMotor(leftMotorSpeed*0.1,rightMotorSpeed*(1+0.5));
             }else{
 
@@ -113,10 +113,10 @@ bool followLine(int speed) {
 }
 
 bool turn(int direction, int speed) {
-  calibrationQuyca.readValues();
+  ReadValues();
   if (overIntersection == true) {
-    calibrationQuyca.readValues();
-    if (calibrationQuyca.sensorValues[0] < 1000 && calibrationQuyca.sensorValues[1] < 1000 ) {
+    ReadValues();
+    if (sensorValues[0] < 1000 && sensorValues[1] < 1000 ) {
       overIntersection = false;
       return false;
     }
@@ -124,31 +124,31 @@ bool turn(int direction, int speed) {
     delay(50);
     return false;
   }
-  if (calibrationQuyca.sensorValues[0] >= 1500 ^ calibrationQuyca.sensorValues[1] >= 1500 ) {
-    if (calibrationQuyca.sensorValues[0] >= 1500 && finds == false) {
+  if (sensorValues[0] >= 1500 ^ sensorValues[1] >= 1500 ) {
+    if (sensorValues[0] >= 1500 && finds == false) {
       Time1 = millis();
       finds = true;
     }
-    if (finds == true && calibrationQuyca.sensorValues[1]) {
+    if (finds == true && sensorValues[1]) {
       if (millis() - Time1 <= period1) {
-        calibrationQuyca.sensorValues[0] = 2000;
-        calibrationQuyca.sensorValues[1] = 2000;
+        sensorValues[0] = 2000;
+        sensorValues[1] = 2000;
       }
       finds = false;
     }
-    if (calibrationQuyca.sensorValues[1] >= 1500 && finds == false) {
+    if (sensorValues[1] >= 1500 && finds == false) {
       Time1 = millis();
       finds = true;
     }
-    if (finds == true && calibrationQuyca.sensorValues[0]) {
+    if (finds == true && sensorValues[0]) {
       if (millis() - Time1 <= period1) {
-        calibrationQuyca.sensorValues[1] = 2000;
-        calibrationQuyca.sensorValues[0] = 2000;
+        sensorValues[1] = 2000;
+        sensorValues[0] = 2000;
       }
       finds = false;
     }
   }
-  if (calibrationQuyca.sensorValues[0] >= 1500 && calibrationQuyca.sensorValues[1] >= 1500 ) {
+  if (sensorValues[0] >= 1500 && sensorValues[1] >= 1500 ) {
     setSpeedsMotor(0, 0);
     overIntersection = true;
     return true;

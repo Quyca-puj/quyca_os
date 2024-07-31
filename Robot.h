@@ -15,8 +15,6 @@
 
 #include "wifi_config.h"
 
-#include "calibration.hpp"
-
 class Robot
 {
   RobotConfig rc;
